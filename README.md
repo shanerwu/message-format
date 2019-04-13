@@ -2,7 +2,9 @@
 
 ### message-format-core 模組
 
-* MessageFormat物件
+* 定義 MessageFormat 物件
+    * 標註 @MessageFormat
+    * 繼承 MessageFormatSupport
 ```
 @Getter
 @Setter
