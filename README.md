@@ -52,5 +52,5 @@ public class SampleDateTime extends MessageFormatSupport {
    ```
 
 ### message-format-parser Module 定長字串解析小工具
-* A simple GUI tool, Builded with JavaFX to parse fixed-length strings then show parsed message beside.
+* A simple GUI tool, builded with JavaFX to parse fixed-length strings then show parsed message beside.
 <img src="https://i.imgur.com/S1E0GBz.jpg" width="700">
