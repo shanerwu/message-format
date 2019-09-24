@@ -1,10 +1,10 @@
 # message-format
 
-### message-format-core 模組
+### message-format-core Module
 
-* 定義 MessageFormat 物件
-    * 標註 @MessageFormat
-    * 繼承 MessageFormatSupport
+* Define MessageFormat Object
+    * annotated @MessageFormat
+    * extends MessageFormatSupport
 ```
 @Getter
 @Setter
@@ -28,22 +28,29 @@ public class SampleDateTime extends MessageFormatSupport {
 }
 ```
 
-* 定長字串轉物件
-```
-String dateTimeString = "20190413153000";
-SampleDateTime dateTimeObject = MessageFormatHelper.parse(dateTimeString, SampleDateTime.class);
-```
+* Parse Fixed-Length Strings to Object fields 定長字串轉物件
 
-* 物件轉定長字串
-```
-SampleDateTime dateTimeObject = new SampleDateTime();
-dateTimeObject.setYear("2019");
-dateTimeObject.setDate("0413");
-dateTimeObject.setTime("1530");
+   `MessageFormatHelper.parse(String text, Class<T> clazz)`
+   ```
+   String dateTimeString = "20190413153000";
+   SampleDateTime dateTimeObject = MessageFormatHelper.parse(dateTimeString, SampleDateTime.class);
 
-String dateTimeString = MessageFormatHelper.stringify(sampleObject);
-```
+   // dateTimeObject -> { year: "2019", date: "0413", time: "1530", listCount: 0, list: null }
+   ```
 
-### message-format-parser 定長字串解析小工具
-* 使用 JavaFX 建立的桌面應用程式
-<img src="https://i.imgur.com/gy1uVlN.jpg" width="700">
+* Stringify Object fields to Fixed-Length Strings 物件轉定長字串
+
+   `MessageFormatHelper.stringify(MessageFormatSupport format)`
+   ```
+   SampleDateTime dateTimeObject = new SampleDateTime();
+   dateTimeObject.setYear("2019");
+   dateTimeObject.setDate("0413");
+   dateTimeObject.setTime("1530");
+
+   String dateTimeString = MessageFormatHelper.stringify(sampleObject);
+   // dateTimeString -> "20190413153000"
+   ```
+
+### message-format-parser Module 定長字串解析小工具
+* A simple GUI tool, Builded with JavaFX to parse fixed-length strings then show parsed message beside.
+<img src="https://i.imgur.com/S1E0GBz.jpg" width="700">
