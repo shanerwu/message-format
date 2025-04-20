@@ -1,4 +1,4 @@
-package io.github.shanerwu.message.format.parser.message.Sample2;
+package io.github.shanerwu.message.format.parser.message.sample2;
 
 import java.util.List;
 
