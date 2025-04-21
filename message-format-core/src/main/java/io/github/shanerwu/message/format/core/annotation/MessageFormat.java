@@ -21,7 +21,7 @@ public @interface MessageFormat {
 	/**
 	 * 定長文字長度, 若標註型態為 {@link List} 上則代表一筆 detail 的總長度
 	 */
-	int length();
+	int length() default -1;
 
 	/**
 	 * 文字所在位置

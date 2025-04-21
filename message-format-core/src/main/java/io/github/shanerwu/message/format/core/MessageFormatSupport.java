@@ -1,11 +1,11 @@
 package io.github.shanerwu.message.format.core;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-
+import io.github.shanerwu.message.format.core.annotation.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 
-import io.github.shanerwu.message.format.core.annotation.MessageFormat;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
 
 /**
  * MessageFormatSupport，定長字串 format
@@ -27,9 +27,19 @@ public abstract class MessageFormatSupport {
                     continue;
                 }
 
+                boolean isCollection = Collection.class.isAssignableFrom(field.getType());
+                boolean autoCalculateLength = annotation.length() == -1 && isCollection;
+
                 if (annotation.repeat() > 0 && StringUtils.isBlank(annotation.reference())) {
-                    length += annotation.repeat() * annotation.length();
-                } else if (annotation.repeat() == -1 && StringUtils.isNotBlank(annotation.reference())) {
+                    if (autoCalculateLength) {
+                        Class<? extends MessageFormatSupport> elementType = this.getElementType(field);
+                        MessageFormatSupport elementInstance = elementType.newInstance();
+                        length += annotation.repeat() * elementInstance.getLength();
+                    } else {
+                        length += annotation.repeat() * annotation.length();
+                    }
+                }
+                else if (annotation.repeat() == -1 && StringUtils.isNotBlank(annotation.reference())) {
                     Collection<MessageFormatSupport> details = (Collection<MessageFormatSupport>) field.get(this);
                     boolean isSimpleCollection = true;
                     if (details != null && details.size() != 0) {
@@ -43,13 +53,30 @@ public abstract class MessageFormatSupport {
 
                     Field referenceField = clazz.getDeclaredField(annotation.reference());
                     referenceField.setAccessible(true);
+
                     if (isSimpleCollection) {
-                        length += (int) referenceField.get(this) * annotation.length();
+                        if (autoCalculateLength) {
+                            if (details != null && details.size() > 0) {
+                                int elementLength = details.iterator().next().getLength();
+                                length += (int) referenceField.get(this) * elementLength;
+                            } else {
+                                Class<? extends MessageFormatSupport> elementType = this.getElementType(field);
+                                MessageFormatSupport elementInstance = elementType.newInstance();
+                                length += (int) referenceField.get(this) * elementInstance.getLength();
+                            }
+                        } else {
+                            length += (int) referenceField.get(this) * annotation.length();
+                        }
                     } else {
-                        length += details.stream()
-                                .mapToInt(MessageFormatSupport::getLength).reduce((prev, next) -> prev + next).getAsInt();
+                        if (details != null && !details.isEmpty()) {
+                            length += details.stream()
+                                    .mapToInt(MessageFormatSupport::getLength)
+                                    .reduce((prev, next) -> prev + next)
+                                    .getAsInt();
+                        }
                     }
-                } else {
+                }
+                else {
                     length += annotation.length();
                 }
             } catch (Exception e) {
@@ -62,4 +89,9 @@ public abstract class MessageFormatSupport {
         return length;
     }
 
+    @SuppressWarnings("unchecked")
+    private Class<? extends MessageFormatSupport> getElementType(Field field) {
+        ParameterizedType genericType = (ParameterizedType) field.getGenericType();
+        return (Class<? extends MessageFormatSupport>) genericType.getActualTypeArguments()[0];
+    }
 }
